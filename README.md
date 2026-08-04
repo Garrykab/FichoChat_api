@@ -48,7 +48,14 @@ Le fichier `railway.toml` sépare **build** et **start** :
    `php artisan migrate … && queue:work … & php artisan serve …`  
    → c’est ça qui bloquait le build sur « Press Ctrl+C to stop the server ».
 2. Laisser Railpack utiliser `railway.toml` (ou Start Command = `bash scripts/railway-start.sh`).
-3. Variables d’env minimales : `APP_KEY`, `APP_URL`, `JWT_SECRET`, `DB_*` (Postgres Railway), `FRONTEND_URL`, `MAIL_*` / `BREVO_API_KEY`, `QUEUE_CONNECTION=database`.
+3. **Postgres Railway** (cause de l’erreur `127.0.0.1:5432` / database `laravel`) :
+   - Ajoute un service **PostgreSQL** dans le projet
+   - Sur le service API → **Variables** → **Add variable** / **Connect** / référence :
+     - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}` (nom exact du service Postgres)
+     - `DB_CONNECTION=pgsql`
+   - Ou mappe manuellement `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` depuis Postgres
+   - **Ne laisse pas** `DB_HOST=127.0.0.1` en production
+4. Autres variables : `APP_KEY`, `APP_URL`, `JWT_SECRET`, `FRONTEND_URL`, `MAIL_*` / `BREVO_API_KEY`, `QUEUE_CONNECTION=database`.
 
 **Workers (service séparé recommandé)** — même repo, Start Command :
 

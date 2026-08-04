@@ -1,6 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Railway Postgres expose DATABASE_URL ; Laravel utilise DB_URL.
+if [[ -z "${DB_URL:-}" && -n "${DATABASE_URL:-}" ]]; then
+  export DB_URL="$DATABASE_URL"
+fi
+
+# Force pgsql en prod si une URL Postgres est présente.
+if [[ -n "${DB_URL:-}${DATABASE_URL:-}" ]]; then
+  export DB_CONNECTION="${DB_CONNECTION:-pgsql}"
+fi
+
+if [[ -z "${DB_URL:-}" && -z "${DATABASE_URL:-}" && -z "${DB_HOST:-}" ]]; then
+  echo "ERROR: aucune base configurée. Sur Railway :"
+  echo "  1) Ajoute un service PostgreSQL"
+  echo "  2) Relie-le à l'API (Variables → Reference / Connect)"
+  echo "  3) Définis DB_CONNECTION=pgsql"
+  echo "  4) Ou mappe DATABASE_URL → variable partagée"
+  exit 1
+fi
+
 php artisan migrate --force
 php artisan config:cache
 php artisan route:cache
