@@ -23,6 +23,21 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->job(new CleanupStaleUploadSessionsJob)->everyFifteenMinutes();
     })
     ->withMiddleware(function (Middleware $middleware): void {
+        // Railway / reverse-proxy : X-Forwarded-Proto pour ForceHttps & URL sécurisées.
+        $middleware->trustProxies(
+            at: '*',
+            headers: Request::HEADER_X_FORWARDED_FOR
+                | Request::HEADER_X_FORWARDED_HOST
+                | Request::HEADER_X_FORWARDED_PORT
+                | Request::HEADER_X_FORWARDED_PROTO
+                | Request::HEADER_X_FORWARDED_AWS_ELB,
+        );
+
+        $middleware->append([
+            \App\Http\Middleware\ForceHttps::class,
+            \App\Http\Middleware\SecurityHeaders::class,
+        ]);
+
         $middleware->encryptCookies(except: [
             'fichochat_refresh_token',
         ]);

@@ -55,7 +55,8 @@ Le fichier `railway.toml` sépare **build** et **start** :
      - `DB_CONNECTION=pgsql`
    - Ou mappe manuellement `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` depuis Postgres
    - **Ne laisse pas** `DB_HOST=127.0.0.1` en production
-4. Autres variables : `APP_KEY`, `APP_URL`, `JWT_SECRET`, `FRONTEND_URL`, `MAIL_*` / `BREVO_API_KEY`, `QUEUE_CONNECTION=database`.
+4. Autres variables : `APP_KEY`, `APP_URL` (https://…), `JWT_SECRET`, `FRONTEND_URL`, `MAIL_*` / `BREVO_API_KEY`, `QUEUE_CONNECTION=database`.
+5. Sécurité HTTP : `FORCE_HTTPS=true` (ou `APP_ENV=production`), `SECURITY_HEADERS=true` (défaut).
 
 **Workers (service séparé recommandé)** — même repo, Start Command :
 
