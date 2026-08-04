@@ -1,0 +1,9 @@
+[build]
+builder = "RAILPACK"
+# IMPORTANT : ne jamais lancer serve / queue:work ici — le build doit se terminer.
+buildCommand = "php artisan package:discover --ansi"
+
+[deploy]
+startCommand = "bash scripts/railway-start.sh"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

@@ -26,10 +26,43 @@ Le serveur ne stocke **jamais** le clair des messages : chiffrement côté clien
 
 ## Prérequis
 
-- PHP 8.3+
+- PHP 8.4+
 - Composer
 - PostgreSQL 16+ (recommandé) ou SQLite
 - Extensions PHP habituelles Laravel (`pdo`, `openssl`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`)
+
+> **Railway / Railpack** : le projet force PHP **8.4** (`composer.json`, `nixpacks.toml`, `.php-version`). Ne déployez pas sur une image PHP 8.3 — les paquets Symfony 8.1 / Spatie Activitylog 5 exigent `>= 8.4.1`.
+
+### Déploiement Railway
+
+Le fichier `railway.toml` sépare **build** et **start** :
+
+| Étape | Commande | Rôle |
+|-------|----------|------|
+| Build | `php artisan package:discover` | Doit **se terminer** (pas de serveur) |
+| Start | `bash scripts/railway-start.sh` | migrate + caches + FrankenPHP / serve |
+
+**À faire dans le dashboard Railway (service API) :**
+
+1. **Supprimer** toute Custom Build Command du type  
+   `php artisan migrate … && queue:work … & php artisan serve …`  
+   → c’est ça qui bloquait le build sur « Press Ctrl+C to stop the server ».
+2. Laisser Railpack utiliser `railway.toml` (ou Start Command = `bash scripts/railway-start.sh`).
+3. Variables d’env minimales : `APP_KEY`, `APP_URL`, `JWT_SECRET`, `DB_*` (Postgres Railway), `FRONTEND_URL`, `MAIL_*` / `BREVO_API_KEY`, `QUEUE_CONNECTION=database`.
+
+**Workers (service séparé recommandé)** — même repo, Start Command :
+
+```bash
+bash scripts/railway-worker.sh
+```
+
+**Scheduler (optionnel, 3ᵉ service)** :
+
+```bash
+php artisan schedule:work
+```
+
+Ne lancez **jamais** `queue:work` ou `serve` dans le Build Command.
 
 ---
 

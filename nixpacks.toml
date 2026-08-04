@@ -1,3 +1,5 @@
 [variables]
 NIXPACKS_PHP_VERSION = "8.4"
 COMPOSER_ALLOW_SUPERUSER = "1"
+# API pure : pas de build frontend Vite requis en prod
+NIXPACKS_NODE_VERSION = "22"
