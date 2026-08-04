@@ -547,6 +547,51 @@
                 ]
             }
         },
+        "/admin/settings": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Lire les réglages plateforme (limites médias)",
+                "operationId": "adminSettingsShow",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "403": {
+                        "description": "Permission manquante"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Mettre à jour les réglages plateforme (limites médias)",
+                "operationId": "adminSettingsUpdate",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "403": {
+                        "description": "Permission manquante"
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/auth/register": {
             "post": {
                 "tags": [
@@ -1739,6 +1784,101 @@
                 ]
             }
         },
+        "/conversations/{id}/typing": {
+            "post": {
+                "tags": [
+                    "Conversations"
+                ],
+                "summary": "Signaler qu’un utilisateur est en train d’écrire",
+                "operationId": "conversationsTyping",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "typing"
+                                ]
+                            },
+                            "example": {
+                                "typing": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthorized401"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Email non vérifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorForbidden403"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorNotFound404"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorServer500"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/devices": {
             "get": {
                 "tags": [
@@ -2095,6 +2235,111 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/DevicesRevoke200"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthorized401"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorNotFound404"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation / règles métier",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorServer500"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/devices/{id}/replace-key": {
+            "post": {
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Remplacer la clé publique d’un appareil",
+                "description": "Un appareil approved peut régénérer sa paire de clés (même id) pour créer une phrase de récupération.",
+                "operationId": "devicesReplaceKey",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "actor_device_id",
+                                    "public_key"
+                                ],
+                                "properties": {
+                                    "actor_device_id": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "public_key": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "example": {
+                                "actor_device_id": "019fc7e1-1111-2222-3333-444455556666",
+                                "public_key": "-----BEGIN PUBLIC KEY-----\\nMFkwEwYH...\\n-----END PUBLIC KEY-----"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Clé remplacée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DevicesReplaceKey200"
                                 }
                             }
                         }
@@ -2858,7 +3103,7 @@
                     "Media"
                 ],
                 "summary": "Uploader le blob chiffré",
-                "description": "Body binaire (application/octet-stream) ou multipart file `file`.",
+                "description": "Body binaire (application/octet-stream) ou multipart file `file`. Upload chunké via header `Content-Range: bytes START-END/TOTAL`.",
                 "operationId": "mediaUploadContent",
                 "parameters": [
                     {
@@ -3165,6 +3410,28 @@
                                 }
                             }
                         }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/media/limits": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Limites d’upload médias (lecture client)",
+                "operationId": "mediaLimits",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Non authentifié"
                     }
                 },
                 "security": [
@@ -3907,7 +4174,7 @@
                     "Realtime"
                 ],
                 "summary": "Config publique Pusher pour le client",
-                "description": "Ne renvoie jamais le secret. Si BROADCAST_CONNECTION ≠ pusher, enabled=false.",
+                "description": "Ne renvoie jamais le secret. enabled=true si BROADCAST_CONNECTION=pusher et clé définie.",
                 "operationId": "realtimeConfig",
                 "responses": {
                     "200": {
@@ -4222,6 +4489,10 @@
                                     "show_last_seen": {
                                         "type": "boolean",
                                         "example": true
+                                    },
+                                    "auto_download_media": {
+                                        "type": "boolean",
+                                        "example": false
                                     },
                                     "locale": {
                                         "type": "string",
@@ -5856,6 +6127,29 @@
                             "last_seen_at": "2026-08-03T18:10:00.000000Z",
                             "created_at": "2026-08-03T18:10:00.000000Z",
                             "updated_at": "2026-08-03T19:00:00.000000Z"
+                        }
+                    }
+                }
+            },
+            "DevicesReplaceKey200": {
+                "type": "object",
+                "example": {
+                    "success": true,
+                    "message": "Device key replaced successfully.",
+                    "data": {
+                        "device": {
+                            "id": "019fc7e1-1111-2222-3333-444455556666",
+                            "name": "iPhone 15",
+                            "platform": "ios",
+                            "fingerprint": "ccddeeff00112233445566778899aabbccddeeff00112233445566778899aabb",
+                            "public_key": "-----BEGIN PUBLIC KEY-----\\nMFkwEwYH...\\n-----END PUBLIC KEY-----",
+                            "status": "approved",
+                            "approved_at": "2026-08-03T18:15:00.000000Z",
+                            "approved_by_device_id": "019fc7e1-aaaa-bbbb-cccc-ddddeeeeffff",
+                            "revoked_at": null,
+                            "last_seen_at": "2026-08-03T18:10:00.000000Z",
+                            "created_at": "2026-08-03T18:10:00.000000Z",
+                            "updated_at": "2026-08-03T19:30:00.000000Z"
                         }
                     }
                 }

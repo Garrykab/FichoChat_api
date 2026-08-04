@@ -20,6 +20,9 @@ if [[ -z "${DB_URL:-}" && -z "${DATABASE_URL:-}" && -z "${DB_HOST:-}" ]]; then
   exit 1
 fi
 
+mkdir -p storage/api-docs storage/logs storage/framework/{cache,sessions,views}
+chmod -R ug+rwx storage bootstrap/cache || true
+
 php artisan migrate --force
 php artisan config:cache
 php artisan route:cache

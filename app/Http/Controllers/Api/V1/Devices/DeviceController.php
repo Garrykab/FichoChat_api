@@ -222,6 +222,30 @@ class DeviceController extends Controller
         description: 'Un appareil approved peut régénérer sa paire de clés (même id) pour créer une phrase de récupération.',
         security: [['bearerAuth' => []]],
         tags: ['Devices'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['actor_device_id', 'public_key'],
+                properties: [
+                    new OA\Property(property: 'actor_device_id', type: 'string', format: 'uuid'),
+                    new OA\Property(property: 'public_key', type: 'string'),
+                ],
+                example: [
+                    'actor_device_id' => '019fc7e1-1111-2222-3333-444455556666',
+                    'public_key' => '-----BEGIN PUBLIC KEY-----\nMFkwEwYH...\n-----END PUBLIC KEY-----',
+                ],
+            ),
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Clé remplacée', content: new OA\JsonContent(ref: '#/components/schemas/DevicesReplaceKey200')),
+            new OA\Response(response: 401, description: 'Non authentifié', content: new OA\JsonContent(ref: '#/components/schemas/ErrorUnauthorized401')),
+            new OA\Response(response: 404, description: 'Introuvable', content: new OA\JsonContent(ref: '#/components/schemas/ErrorNotFound404')),
+            new OA\Response(response: 422, description: 'Validation / règles métier', content: new OA\JsonContent(ref: '#/components/schemas/ErrorValidation422')),
+            new OA\Response(response: 500, description: 'Erreur serveur', content: new OA\JsonContent(ref: '#/components/schemas/ErrorServer500')),
+        ],
     )]
     public function replaceKey(
         ReplaceDeviceKeyRequest $request,

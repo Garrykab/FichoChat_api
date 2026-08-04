@@ -126,7 +126,7 @@
         const urls = [];
 
         @foreach($urlsToDocs as $title => $url)
-            urls.push({name: "{{ $title }}", url: "{{ $url }}"});
+            urls.push({name: "{{ $title }}", url: "{{ route('l5-swagger.'.$documentation.'.docs', [], $useAbsolutePath) }}"});
         @endforeach
 
         // Build a system

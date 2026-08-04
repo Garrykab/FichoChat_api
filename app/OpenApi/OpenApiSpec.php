@@ -558,6 +558,30 @@ use OpenApi\Attributes as OA;
         ],
     ],
 )]
+#[OA\Schema(
+    schema: 'DevicesReplaceKey200',
+    type: 'object',
+    example: [
+        'success' => true,
+        'message' => 'Device key replaced successfully.',
+        'data' => [
+            'device' => [
+                'id' => '019fc7e1-1111-2222-3333-444455556666',
+                'name' => 'iPhone 15',
+                'platform' => 'ios',
+                'fingerprint' => 'ccddeeff00112233445566778899aabbccddeeff00112233445566778899aabb',
+                'public_key' => '-----BEGIN PUBLIC KEY-----\nMFkwEwYH...\n-----END PUBLIC KEY-----',
+                'status' => 'approved',
+                'approved_at' => '2026-08-03T18:15:00.000000Z',
+                'approved_by_device_id' => '019fc7e1-aaaa-bbbb-cccc-ddddeeeeffff',
+                'revoked_at' => null,
+                'last_seen_at' => '2026-08-03T18:10:00.000000Z',
+                'created_at' => '2026-08-03T18:10:00.000000Z',
+                'updated_at' => '2026-08-03T19:30:00.000000Z',
+            ],
+        ],
+    ],
+)]
 #[OA\Tag(name: 'Keys', description: 'Clés publiques, enveloppes CEK et rotation — jamais de clé privée')]
 #[OA\Schema(
     schema: 'KeyEnvelope',
