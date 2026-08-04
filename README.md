@@ -13,7 +13,7 @@ Le serveur ne stocke **jamais** le clair des messages : chiffrement côté clien
 
 | Composant | Techno |
 |-----------|--------|
-| Framework | Laravel 13 (PHP 8.3+) |
+| Framework | Laravel 13 (PHP 8.4+) |
 | Auth | JWT (`php-open-source-saver/jwt-auth`) + refresh cookie (Web) |
 | Permissions | Spatie Permission |
 | Docs | L5-Swagger (`/api/documentation`) |
