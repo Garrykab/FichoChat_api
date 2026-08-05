@@ -35,42 +35,44 @@ Le serveur ne stocke **jamais** le clair des messages : chiffrement côté clien
 
 ### Déploiement Railway
 
-Le fichier `railway.toml` sépare **build** et **start** :
+Le fichier `railway.toml` définit un **service unique** (API + worker + scheduler) :
 
 | Étape | Commande | Rôle |
 |-------|----------|------|
 | Build | `php artisan package:discover` | Doit **se terminer** (pas de serveur) |
-| Start | `bash scripts/railway-start.sh` | migrate + caches + FrankenPHP / serve |
+| Start | `bash scripts/railway-start.sh` | migrate, config:clear, queue, schedule, serve |
+
+**Custom Start Command** (équivalent, si vous ne passez pas par le script) :
+
+```bash
+php artisan migrate --force && php artisan config:clear && php artisan queue:work --queue=broadcasts,emails,audits,media,default --sleep=3 --tries=3 --timeout=3600 & php artisan schedule:work & php artisan serve --host=0.0.0.0 --port=$PORT
+```
+
+Avec **Redis** (`QUEUE_CONNECTION=redis`) :
+
+```bash
+php artisan migrate --force && php artisan config:clear && php artisan queue:work redis --queue=broadcasts,emails,audits,media,default --sleep=3 --tries=3 --timeout=3600 & php artisan schedule:work & php artisan serve --host=0.0.0.0 --port=$PORT
+```
 
 **À faire dans le dashboard Railway (service API) :**
 
-1. **Supprimer** toute Custom Build Command du type  
-   `php artisan migrate … && queue:work … & php artisan serve …`  
-   → c’est ça qui bloquait le build sur « Press Ctrl+C to stop the server ».
-2. Laisser Railpack utiliser `railway.toml` (ou Start Command = `bash scripts/railway-start.sh`).
-3. **Postgres Railway** (cause de l’erreur `127.0.0.1:5432` / database `laravel`) :
-   - Ajoute un service **PostgreSQL** dans le projet
-   - Sur le service API → **Variables** → **Add variable** / **Connect** / référence :
-     - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}` (nom exact du service Postgres)
-     - `DB_CONNECTION=pgsql`
-   - Ou mappe manuellement `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` depuis Postgres
-   - **Ne laisse pas** `DB_HOST=127.0.0.1` en production
-4. Autres variables : `APP_KEY`, `APP_URL` (https://…), `JWT_SECRET`, `FRONTEND_URL`, `MAIL_*` / `BREVO_API_KEY`, `QUEUE_CONNECTION=database`.
-5. Sécurité HTTP : `FORCE_HTTPS=true` (ou `APP_ENV=production`), `SECURITY_HEADERS=true` (défaut).
+1. **Build Command** : laisser `php artisan package:discover --ansi` (via `railway.toml`) — **ne pas** y mettre migrate / serve / queue.
+2. **Start Command** : laisser `bash scripts/railway-start.sh` (via `railway.toml`).
+3. **Postgres Railway** :
+   - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`
+   - `DB_CONNECTION=pgsql`
+   - **Ne pas** laisser `DB_HOST=127.0.0.1` en production
+4. Autres variables : `APP_KEY`, `APP_URL` (https://…), `JWT_SECRET`, `FRONTEND_URL`, `QUEUE_CONNECTION=database`, `MAIL_*` / `BREVO_API_KEY`.
+5. Sécurité HTTP : `FORCE_HTTPS=true`, `SECURITY_HEADERS=true`.
 
-**Workers (service séparé recommandé)** — même repo, Start Command :
+**Services séparés (optionnel)** — si vous préférez scaler worker / API à part :
 
 ```bash
-bash scripts/railway-worker.sh
+bash scripts/railway-worker.sh   # queue seule
+php artisan schedule:work        # scheduler seul
 ```
 
-**Scheduler (optionnel, 3ᵉ service)** :
-
-```bash
-php artisan schedule:work
-```
-
-Ne lancez **jamais** `queue:work` ou `serve` dans le Build Command.
+Ne lancez **jamais** `queue:work` ou `serve` dans le **Build Command**.
 
 ---
 
