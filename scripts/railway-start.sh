@@ -31,6 +31,7 @@ mkdir -p storage/api-docs storage/logs storage/framework/{cache,sessions,views}
 chmod -R ug+rwx storage bootstrap/cache || true
 
 php artisan migrate --force
+php artisan db:seed --class=RolesAndPermissionsSeeder --force
 php artisan config:clear
 
 QUEUE_CONNECTION="${QUEUE_CONNECTION:-database}"

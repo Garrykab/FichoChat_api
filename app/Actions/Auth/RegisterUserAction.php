@@ -9,10 +9,12 @@ use App\Enums\UserStatus;
 use App\Models\User;
 use App\Services\Audit\AuditLogger;
 use App\Services\Auth\TokenService;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class RegisterUserAction
 {
@@ -41,6 +43,9 @@ class RegisterUserAction
 
             $this->ensureUserProfileAction->execute($user);
             $this->ensureUserSettingsAction->execute($user);
+
+            // Prod : le seeder peut ne pas avoir été lancé — garantir le rôle avant assignRole.
+            Role::findOrCreate('user', RolesAndPermissionsSeeder::GUARD);
             $user->assignRole('user');
 
             event(new Registered($user));
