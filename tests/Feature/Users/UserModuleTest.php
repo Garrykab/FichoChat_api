@@ -150,6 +150,22 @@ class UserModuleTest extends TestCase
             ->assertJsonPath('data.users.0.username', $match->username);
     }
 
+    public function test_user_search_is_tolerant_to_near_matches(): void
+    {
+        $me = User::factory()->create(['username' => 'searcher']);
+        $doubleR = User::factory()->create(['username' => 'garrykab']);
+        User::factory()->create(['username' => 'zzzother']);
+
+        $token = $this->loginToken($me);
+
+        $this->withToken($token)
+            ->getJson('/api/v1/users/search?q=gary')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(1, 'data.users')
+            ->assertJsonPath('data.users.0.username', $doubleR->username);
+    }
+
     public function test_user_can_view_public_profile(): void
     {
         $me = User::factory()->create();
